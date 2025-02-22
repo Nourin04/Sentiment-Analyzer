@@ -4,3 +4,4 @@ scikit-learn
 pandas
 numpy
 gdown
+keras==3.8.0
