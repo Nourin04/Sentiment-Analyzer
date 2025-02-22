@@ -13,9 +13,9 @@ def download_file_from_gdrive(file_id, destination):
         gdown.download(url, destination, quiet=False)
 
 # File IDs from Google Drive
-MODEL_FILE_ID = '1lZ5_ctzJXSFwa0FZZMBJHF8HF6mM3jgB'
-TOKENIZER_FILE_ID = '1QaILoCOEbewXPlQXZ6HCXhOMo6ekNBho'
-ENCODER_FILE_ID = '1PHSatOkcudmY6RHTzCKqQqB7Zr-JX-v1'
+MODEL_FILE_ID = '1ase6CSuuke-IvZ-IsYQucE5J_i-RnHIi'
+TOKENIZER_FILE_ID = '1T9qGlyTFligYzHAE4qsTTD9NfTeT37kP'
+ENCODER_FILE_ID = '1yf-8_bA--JRad9q24y7TmJ9F2NEgyatI'
 
 # File paths
 model_path = "emotion_detection_model.keras"
