@@ -65,11 +65,18 @@ def predict_emotion(input_text):
     if len(input_sequence[0]) == 0:
         return "Input text contains unknown words or is empty."
 
-    # Convert to tensor before prediction
+    # Ensure input is consistent and TensorFlow-friendly
     input_tensor = tf.convert_to_tensor(padded_input_sequence, dtype=tf.float32)
-    prediction = model(input_tensor)
-    predicted_label = label_encoder.inverse_transform([np.argmax(prediction[0])])
+
+    # Perform prediction
+    prediction = model.predict(input_tensor, verbose=0)
+
+    # Convert prediction to label (outside TensorFlow scope)
+    predicted_label_index = np.argmax(prediction[0])
+    predicted_label = label_encoder.inverse_transform([predicted_label_index])
+
     return predicted_label[0]
+
 
 
 # Streamlit app UI
