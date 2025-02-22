@@ -28,7 +28,7 @@ download_file_from_gdrive(TOKENIZER_FILE_ID, tokenizer_path)
 download_file_from_gdrive(ENCODER_FILE_ID, encoder_path)
 
 # Load model, tokenizer, and label encoder
-model = load_model(model_path)
+model = load_model(model_path, compile=False)  # Load without compiling to avoid version mismatch
 with open(tokenizer_path, "rb") as f:
     tokenizer = pickle.load(f)
 with open(encoder_path, "rb") as f:
@@ -54,17 +54,13 @@ def predict_emotion(input_text):
 st.title("😊 Real-Time Emotion Detection App")
 st.write("Enter any text below, and I'll predict its emotion!")
 
-# Manage user input using session state
-if "user_input" not in st.session_state:
-    st.session_state.user_input = ""
-
 # Input text box
-st.session_state.user_input = st.text_input("Type your message here:", value=st.session_state.user_input)
+user_input = st.text_input("Type your message here:")
 
 # Prediction button
 if st.button("Predict Emotion"):
-    if st.session_state.user_input.strip() != "":
-        result = predict_emotion(st.session_state.user_input)
+    if user_input.strip() != "":
+        result = predict_emotion(user_input)
         if result == "Input text contains unknown words or is empty.":
             st.error("The input text contains unknown words. Please try with different text.")
         else:
@@ -74,4 +70,4 @@ if st.button("Predict Emotion"):
 
 # Add a footer
 st.markdown("---")
-st.write("Made with ❤️ using Streamlit and TensorFlow")
+st.write("Made with ❤️ using Streamlit and TensorFlow") 
