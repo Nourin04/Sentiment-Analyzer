@@ -129,11 +129,3 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 ---
 
-## 🙏 Acknowledgments
-
-- Special thanks to **TensorFlow** and **Streamlit** communities for their valuable tools and documentation.
-- Model training was inspired by various open-source sentiment analysis and NLP projects.
-
----
-
-Let me know if you'd like any additional sections! 🚀
