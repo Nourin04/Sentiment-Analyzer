@@ -56,6 +56,8 @@ with open(encoder_path, "rb") as f:
 max_length = model.input_shape[1]
 
 # Prediction function
+# Use @tf.function to avoid retracing
+@tf.function(reduce_retracing=True)
 def predict_emotion(input_text):
     input_sequence = tokenizer.texts_to_sequences([input_text])
     padded_input_sequence = pad_sequences(input_sequence, maxlen=max_length)
@@ -63,9 +65,12 @@ def predict_emotion(input_text):
     if len(input_sequence[0]) == 0:
         return "Input text contains unknown words or is empty."
 
-    prediction = model.predict(padded_input_sequence)
+    # Convert to tensor before prediction
+    input_tensor = tf.convert_to_tensor(padded_input_sequence, dtype=tf.float32)
+    prediction = model(input_tensor)
     predicted_label = label_encoder.inverse_transform([np.argmax(prediction[0])])
     return predicted_label[0]
+
 
 # Streamlit app UI
 st.title("😊 Real-Time Emotion Detection App")
