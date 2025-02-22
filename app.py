@@ -59,23 +59,32 @@ max_length = model.input_shape[1]
 # Use @tf.function to avoid retracing
 @tf.function(reduce_retracing=True)
 def predict_emotion(input_text):
+    # Convert input text to a sequence
     input_sequence = tokenizer.texts_to_sequences([input_text])
-    padded_input_sequence = pad_sequences(input_sequence, maxlen=max_length)
 
+    # Check for empty input or unknown words
     if len(input_sequence[0]) == 0:
         return "Input text contains unknown words or is empty."
 
-    # Ensure input is consistent and TensorFlow-friendly
+    # Pad the input sequence
+    padded_input_sequence = pad_sequences(input_sequence, maxlen=max_length)
+
+    # Convert to tensor explicitly
     input_tensor = tf.convert_to_tensor(padded_input_sequence, dtype=tf.float32)
 
-    # Perform prediction
-    prediction = model.predict(input_tensor, verbose=0)
+    try:
+        # Make a prediction
+        prediction = model.predict(input_tensor, verbose=0)
 
-    # Convert prediction to label (outside TensorFlow scope)
-    predicted_label_index = np.argmax(prediction[0])
-    predicted_label = label_encoder.inverse_transform([predicted_label_index])
-
-    return predicted_label[0]
+        # Check if prediction is valid
+        if prediction is not None and prediction.size > 0:
+            predicted_label_index = np.argmax(prediction[0])
+            predicted_label = label_encoder.inverse_transform([predicted_label_index])
+            return predicted_label[0]
+        else:
+            return "Error: Model prediction failed."
+    except Exception as e:
+        return f"Prediction Error: {e}"
 
 
 
