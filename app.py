@@ -4,7 +4,7 @@ import pickle
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.utils import CustomObjectScope
-import tensorflow.keras.optimizers as optimizers
+from tensorflow.keras.optimizers import RMSprop
 import gdown
 import os
 
@@ -29,13 +29,17 @@ download_file_from_gdrive(MODEL_FILE_ID, model_path)
 download_file_from_gdrive(TOKENIZER_FILE_ID, tokenizer_path)
 download_file_from_gdrive(ENCODER_FILE_ID, encoder_path)
 
+# Disable eager execution for TensorFlow compatibility
+tf.compat.v1.disable_eager_execution()
+
 # Load model, tokenizer, and label encoder
 try:
-    with CustomObjectScope({'RMSprop': optimizers.RMSprop}):
+    with CustomObjectScope({'RMSprop': RMSprop}):
         model = load_model(model_path, compile=False)
 except Exception as e:
     st.error(f"Error loading the model: {e}")
     st.stop()
+
 
 # Load tokenizer
 with open(tokenizer_path, "rb") as f:
