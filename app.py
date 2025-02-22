@@ -1,6 +1,4 @@
 import tensorflow as tf
-
-
 import streamlit as st
 import numpy as np
 import pickle
@@ -10,6 +8,13 @@ from tensorflow.keras.optimizers import RMSprop
 from tensorflow.keras.utils import CustomObjectScope
 import gdown
 import os
+
+# Enable eager execution if it's not enabled
+if not tf.executing_eagerly():
+    tf.compat.v1.enable_eager_execution()
+
+# Clear any existing TensorFlow session
+tf.keras.backend.clear_session()
 
 # Function to download the model files from Google Drive
 def download_file_from_gdrive(file_id, destination):
@@ -41,12 +46,15 @@ except Exception as e:
     st.error(f"Error loading the model: {e}")
     st.stop()
 
-
 # Load Tokenizer and Encoder
-with open(tokenizer_path, "rb") as f:
-    tokenizer = pickle.load(f)
-with open(encoder_path, "rb") as f:
-    label_encoder = pickle.load(f)
+try:
+    with open(tokenizer_path, "rb") as f:
+        tokenizer = pickle.load(f)
+    with open(encoder_path, "rb") as f:
+        label_encoder = pickle.load(f)
+except Exception as e:
+    st.error(f"Error loading tokenizer or label encoder: {e}")
+    st.stop()
 
 # Dynamically get max_length from the model input shape
 max_length = model.input_shape[1]
