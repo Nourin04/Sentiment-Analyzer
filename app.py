@@ -38,9 +38,11 @@ download_file_from_gdrive(ENCODER_FILE_ID, encoder_path)
 try:
     with CustomObjectScope({'RMSprop': RMSprop}):
         model = load_model(model_path, compile=False)
+        model.compile()  # Compile after loading
 except Exception as e:
     st.error(f"Error loading the model: {e}")
     st.stop()
+
 
 # Load Tokenizer and Encoder
 with open(tokenizer_path, "rb") as f:
