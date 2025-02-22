@@ -28,11 +28,12 @@ download_file_from_gdrive(TOKENIZER_FILE_ID, tokenizer_path)
 download_file_from_gdrive(ENCODER_FILE_ID, encoder_path)
 
 # Load model, tokenizer, and label encoder
-model = load_model(model_path)
-with open(tokenizer_path, "rb") as f:
-    tokenizer = pickle.load(f)
-with open(encoder_path, "rb") as f:
-    label_encoder = pickle.load(f)
+with st.spinner("Loading model and tokenizer..."):
+    model = load_model(model_path)
+    with open(tokenizer_path, "rb") as f:
+        tokenizer = pickle.load(f)
+    with open(encoder_path, "rb") as f:
+        label_encoder = pickle.load(f)
 
 # Dynamically get max_length from the model input shape
 max_length = model.input_shape[1]
@@ -41,12 +42,12 @@ max_length = model.input_shape[1]
 def predict_emotion(input_text):
     input_sequence = tokenizer.texts_to_sequences([input_text])
     padded_input_sequence = pad_sequences(input_sequence, maxlen=max_length)
-    
+
     # Check if the input is valid
     if len(input_sequence[0]) == 0:
-        return "Input text contains unknown words or is empty."
+        return "❌ Input text contains unknown words or is empty."
     
-    prediction = model.predict(padded_input_sequence)
+    prediction = model.predict(padded_input_sequence, verbose=0)
     predicted_label = label_encoder.inverse_transform([np.argmax(prediction[0])])
     return predicted_label[0]
 
@@ -60,14 +61,19 @@ user_input = st.text_input("Type your message here:")
 # Prediction button
 if st.button("Predict Emotion"):
     if user_input.strip() != "":
-        result = predict_emotion(user_input)
-        if result == "Input text contains unknown words or is empty.":
-            st.error("The input text contains unknown words. Please try with different text.")
+        with st.spinner("Analyzing emotion..."):
+            result = predict_emotion(user_input)
+        
+        if "unknown words" in result:
+            st.error(result)
         else:
-            st.success(f"The predicted emotion is: **{result}**")
+            st.success(f"🔍 **The predicted emotion is:** `{result}`")
+        
+        # Clear the input box after prediction
+        st.experimental_rerun()
     else:
-        st.error("Please enter some text to get a prediction.")
+        st.warning("⚠️ Please enter some text to get a prediction.")
 
 # Add a footer
 st.markdown("---")
-st.write("Made with ❤️ using Streamlit and TensorFlow")
+st.write("Made with ❤️ using **Streamlit** and **TensorFlow**")
