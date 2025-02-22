@@ -10,9 +10,6 @@ from tensorflow.keras.utils import CustomObjectScope
 import gdown
 import os
 
-# Enable eager execution
-tf.compat.v1.enable_eager_execution()
-
 # Function to download the model files from Google Drive
 def download_file_from_gdrive(file_id, destination):
     if not os.path.exists(destination):
@@ -55,9 +52,7 @@ with open(encoder_path, "rb") as f:
 # Dynamically get max_length from the model input shape
 max_length = model.input_shape[1]
 
-# Prediction function
-# Use @tf.function to avoid retracing
-@tf.function(reduce_retracing=True)
+# Prediction function (without tf.function decorator)
 def predict_emotion(input_text):
     # Convert input text to a sequence
     input_sequence = tokenizer.texts_to_sequences([input_text])
@@ -85,8 +80,6 @@ def predict_emotion(input_text):
             return "Error: Model prediction failed."
     except Exception as e:
         return f"Prediction Error: {e}"
-
-
 
 # Streamlit app UI
 st.title("😊 Real-Time Emotion Detection App")
