@@ -34,26 +34,40 @@ with open(tokenizer_path, "rb") as f:
 with open(encoder_path, "rb") as f:
     label_encoder = pickle.load(f)
 
-# Define max length for padding (adjust if needed)
-max_length = 100
+# Dynamically get max_length from the model input shape
+max_length = model.input_shape[1]
 
 # Prediction function
 def predict_emotion(input_text):
     input_sequence = tokenizer.texts_to_sequences([input_text])
     padded_input_sequence = pad_sequences(input_sequence, maxlen=max_length)
+    
+    # Check if the input is valid
+    if len(input_sequence[0]) == 0:
+        return "Input text contains unknown words or is empty."
+    
     prediction = model.predict(padded_input_sequence)
     predicted_label = label_encoder.inverse_transform([np.argmax(prediction[0])])
     return predicted_label[0]
 
 # Streamlit app UI
-st.title("Real-Time Emotion Detection App")
-st.write("Enter text to predict its emotion.")
+st.title("😊 Real-Time Emotion Detection App")
+st.write("Enter any text below, and I'll predict its emotion!")
 
+# Input text box
 user_input = st.text_input("Type your message here:")
 
+# Prediction button
 if st.button("Predict Emotion"):
-    if user_input:
+    if user_input.strip() != "":
         result = predict_emotion(user_input)
-        st.success(f"The predicted emotion is: **{result}**")
+        if result == "Input text contains unknown words or is empty.":
+            st.error("The input text contains unknown words. Please try with different text.")
+        else:
+            st.success(f"The predicted emotion is: **{result}**")
     else:
         st.error("Please enter some text to get a prediction.")
+
+# Add a footer
+st.markdown("---")
+st.write("Made with ❤️ using Streamlit and TensorFlow")
