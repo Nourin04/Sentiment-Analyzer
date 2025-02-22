@@ -1,6 +1,4 @@
-Here's a detailed **README.md** file for your **Real-Time Emotion Detection App**:
 
----
 
 # 😊 Real-Time Emotion Detection App
 
