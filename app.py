@@ -1,7 +1,5 @@
 import tensorflow as tf
 
-# Disable eager execution before importing Keras
-tf.compat.v1.disable_eager_execution()
 
 import streamlit as st
 import numpy as np
