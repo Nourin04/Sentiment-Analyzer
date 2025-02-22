@@ -1,3 +1,4 @@
+# Import libraries
 import tensorflow as tf
 import streamlit as st
 import numpy as np
@@ -5,15 +6,12 @@ import pickle
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.optimizers import RMSprop
+from tensorflow.keras.utils import CustomObjectScope
 import gdown
 import os
 
-# Enable eager execution if not already enabled
-if not tf.executing_eagerly():
-    tf.compat.v1.enable_eager_execution()
-
-# Clear any existing TensorFlow session
-tf.keras.backend.clear_session()
+# Enable eager execution
+tf.compat.v1.enable_eager_execution()
 
 # Function to download the model files from Google Drive
 def download_file_from_gdrive(file_id, destination):
@@ -38,21 +36,21 @@ download_file_from_gdrive(ENCODER_FILE_ID, encoder_path)
 
 # Load model, tokenizer, and label encoder
 try:
-    model = load_model(model_path, compile=False, custom_objects={'RMSprop': RMSprop})
-    model.compile()  # Compile after loading
+    with CustomObjectScope({'RMSprop': RMSprop}):
+        model = load_model(model_path, compile=False)
+        model.compile()  # Compile after loading
+except AttributeError as e:
+    st.error("Model loading failed due to an attribute issue. Try updating TensorFlow or Keras.")
+    st.stop()
 except Exception as e:
-    st.error(f"Error loading the model: {e}")
+    st.error(f"Unexpected error loading the model: {e}")
     st.stop()
 
 # Load Tokenizer and Encoder
-try:
-    with open(tokenizer_path, "rb") as f:
-        tokenizer = pickle.load(f)
-    with open(encoder_path, "rb") as f:
-        label_encoder = pickle.load(f)
-except Exception as e:
-    st.error(f"Error loading tokenizer or label encoder: {e}")
-    st.stop()
+with open(tokenizer_path, "rb") as f:
+    tokenizer = pickle.load(f)
+with open(encoder_path, "rb") as f:
+    label_encoder = pickle.load(f)
 
 # Dynamically get max_length from the model input shape
 max_length = model.input_shape[1]
