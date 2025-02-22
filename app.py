@@ -5,11 +5,10 @@ import pickle
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.optimizers import RMSprop
-from tensorflow.keras.utils import CustomObjectScope
 import gdown
 import os
 
-# Enable eager execution if it's not enabled
+# Enable eager execution if not already enabled
 if not tf.executing_eagerly():
     tf.compat.v1.enable_eager_execution()
 
@@ -39,9 +38,8 @@ download_file_from_gdrive(ENCODER_FILE_ID, encoder_path)
 
 # Load model, tokenizer, and label encoder
 try:
-    with CustomObjectScope({'RMSprop': RMSprop}):
-        model = load_model(model_path, compile=False)
-        model.compile()  # Compile after loading
+    model = load_model(model_path, compile=False, custom_objects={'RMSprop': RMSprop})
+    model.compile()  # Compile after loading
 except Exception as e:
     st.error(f"Error loading the model: {e}")
     st.stop()
@@ -63,10 +61,10 @@ max_length = model.input_shape[1]
 def predict_emotion(input_text):
     input_sequence = tokenizer.texts_to_sequences([input_text])
     padded_input_sequence = pad_sequences(input_sequence, maxlen=max_length)
-    
+
     if len(input_sequence[0]) == 0:
         return "Input text contains unknown words or is empty."
-    
+
     prediction = model.predict(padded_input_sequence)
     predicted_label = label_encoder.inverse_transform([np.argmax(prediction[0])])
     return predicted_label[0]
