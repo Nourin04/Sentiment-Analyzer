@@ -3,6 +3,8 @@ import numpy as np
 import pickle
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.utils import CustomObjectScope
+import tensorflow.keras.optimizers as optimizers
 import gdown
 import os
 
@@ -28,9 +30,18 @@ download_file_from_gdrive(TOKENIZER_FILE_ID, tokenizer_path)
 download_file_from_gdrive(ENCODER_FILE_ID, encoder_path)
 
 # Load model, tokenizer, and label encoder
-model = load_model(model_path, compile=False)  # Load without compiling to avoid version mismatch
+try:
+    with CustomObjectScope({'RMSprop': optimizers.RMSprop}):
+        model = load_model(model_path, compile=False)
+except Exception as e:
+    st.error(f"Error loading the model: {e}")
+    st.stop()
+
+# Load tokenizer
 with open(tokenizer_path, "rb") as f:
     tokenizer = pickle.load(f)
+
+# Load label encoder
 with open(encoder_path, "rb") as f:
     label_encoder = pickle.load(f)
 
@@ -70,4 +81,4 @@ if st.button("Predict Emotion"):
 
 # Add a footer
 st.markdown("---")
-st.write("Made with ❤️ using Streamlit and TensorFlow") 
+st.write("Made with ❤️ using Streamlit and TensorFlow")
